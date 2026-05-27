@@ -9,7 +9,7 @@ The package contains the reusable engine and CLI used by
 ## Install
 
 ```bash
-npm install -g @smorinlabs/contributors-please@1.0.0
+npm install -g contributors-please@1.0.0
 contributors-please --version
 ```
 
@@ -18,7 +18,7 @@ contributors-please --version
 Bootstrap state and render contributors:
 
 ```bash
-npx @smorinlabs/contributors-please@1 init \
+npx contributors-please@1 init \
   --non-interactive \
   --owner smorinlabs \
   --repo example \
@@ -52,7 +52,7 @@ import {
   mergeState,
   render,
   parseTemplate,
-} from "@smorinlabs/contributors-please";
+} from "contributors-please";
 ```
 
 `Contributors.fromConfigFile()` loads `.contributors.yml` and state from disk,
@@ -96,15 +96,14 @@ From `1.0.0` forward, the package root export surface is covered by semver.
 - Major releases may include breaking changes and must document migration notes.
 
 Deep imports such as
-`@smorinlabs/contributors-please/dist/engine/...` are not stable API.
+`contributors-please/dist/engine/...` are not stable API.
 
 ## Release Setup
 
-Tags matching `v*.*.*` run the publish workflow. Before tagging a release,
-configure these repository secrets and variables:
+Tags matching `v*.*.*` run the publish workflow. The package is published by
+npm Trusted Publishing from workflow `publish.yml` in GitHub environment `npm`;
+the workflow uses `id-token: write` and does not require `NPM_TOKEN`.
 
-- `NPM_TOKEN`: npm automation token allowed to publish
-  `@smorinlabs/contributors-please` with public access.
 - `CONTRIBUTORS_PLEASE_ACTION_TOKEN`: optional GitHub token with read access to
   `smorinlabs/contributors-please-action` for private forks or restricted
   cross-repo release setups. Public sibling checkouts fall back to

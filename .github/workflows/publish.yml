@@ -7,9 +7,11 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   publish:
+    environment: npm
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -24,8 +26,8 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24
-          cache: npm
           registry-url: https://registry.npmjs.org
+          package-manager-cache: false
 
       - name: Verify tag matches package version
         run: |
@@ -46,6 +48,4 @@ jobs:
       - run: npm run test:public-api
       - run: node scripts/check-action-outputs.mjs contributors-please-action
       - run: git diff --exit-code -- dist
-      - run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm publish

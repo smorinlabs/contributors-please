@@ -8,6 +8,10 @@ interface PackageJson {
   publishConfig?: {
     access?: string;
   };
+  repository?: {
+    type?: string;
+    url?: string;
+  };
   main: string;
   types: string;
   bin: Record<string, string>;
@@ -21,10 +25,14 @@ describe("package metadata", () => {
       await readFile("package.json", "utf8")
     ) as PackageJson;
 
-    expect(pkg.name).toBe("@smorinlabs/contributors-please");
+    expect(pkg.name).toBe("contributors-please");
     expect(pkg.version).toBe("1.0.0");
     expect(pkg.private).not.toBe(true);
     expect(pkg.publishConfig).toMatchObject({ access: "public" });
+    expect(pkg.repository).toMatchObject({
+      type: "git",
+      url: "git+https://github.com/smorinlabs/contributors-please.git",
+    });
     expect(pkg.main).toBe("./dist/lib.js");
     expect(pkg.types).toBe("./dist/lib.d.ts");
     expect(pkg.bin).toEqual({ "contributors-please": "dist/cli.js" });

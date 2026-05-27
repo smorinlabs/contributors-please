@@ -1,9 +1,13 @@
 {
-  "name": "@smorinlabs/contributors-please",
+  "name": "contributors-please",
   "version": "1.0.0",
   "description": "Incremental, path-aware contributor recognition engine and CLI",
   "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smorinlabs/contributors-please.git"
+  },
   "main": "./dist/lib.js",
   "types": "./dist/lib.d.ts",
   "bin": {
