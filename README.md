@@ -105,13 +105,13 @@ configure these repository secrets and variables:
 
 - `NPM_TOKEN`: npm automation token allowed to publish
   `@smorinlabs/contributors-please` with public access.
-- `CONTRIBUTORS_PLEASE_ACTION_TOKEN`: GitHub token with read access to the
-  private `smorinlabs/contributors-please-action` repository while that sibling
-  repo remains private.
+- `CONTRIBUTORS_PLEASE_ACTION_TOKEN`: optional GitHub token with read access to
+  `smorinlabs/contributors-please-action` for private forks or restricted
+  cross-repo release setups. Public sibling checkouts fall back to
+  `github.token`.
 - `CONTRIBUTORS_PLEASE_ACTION_REF`: optional repository variable selecting the
   action repository ref used for the action-output consistency check. It
-  defaults to `contributors-please-action-impl` until the action implementation
-  is merged to `main`.
+  defaults to `main`.
 
 ## GitHub Enterprise
 

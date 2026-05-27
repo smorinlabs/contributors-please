@@ -32,7 +32,7 @@ describe("publish workflow", () => {
     const setupNode = steps.find(step => step.with?.["registry-url"]);
     expect(actionCheckoutStep?.with).toMatchObject({
       path: "contributors-please-action",
-      ref: "${{ vars.CONTRIBUTORS_PLEASE_ACTION_REF || 'contributors-please-action-impl' }}",
+      ref: "${{ vars.CONTRIBUTORS_PLEASE_ACTION_REF || 'main' }}",
       token: "${{ secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN || github.token }}",
     });
     expect(setupNode?.with).toMatchObject({
@@ -68,5 +68,6 @@ describe("publish workflow", () => {
     expect(readme).toContain("NPM_TOKEN");
     expect(readme).toContain("CONTRIBUTORS_PLEASE_ACTION_TOKEN");
     expect(readme).toContain("CONTRIBUTORS_PLEASE_ACTION_REF");
+    expect(readme).toContain("defaults to `main`");
   });
 });
