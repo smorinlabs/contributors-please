@@ -11,6 +11,7 @@ describe("publish workflow", () => {
       jobs: {
         publish: {
           steps: Array<{
+            uses?: string;
             run?: string;
             with?: Record<string, string | number>;
             env?: Record<string, string>;
@@ -23,7 +24,16 @@ describe("publish workflow", () => {
     expect(workflow.on.push.tags).not.toContain("v*");
 
     const steps = workflow.jobs.publish.steps;
+    const actionCheckoutStep = steps.find(
+      step =>
+        step.uses === "actions/checkout@v6" &&
+        step.with?.repository === "smorinlabs/contributors-please-action"
+    );
     const setupNode = steps.find(step => step.with?.["registry-url"]);
+    expect(actionCheckoutStep?.with).toMatchObject({
+      path: "contributors-please-action",
+      token: "${{ secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN || github.token }}",
+    });
     expect(setupNode?.with).toMatchObject({
       "node-version": 24,
       "registry-url": "https://registry.npmjs.org",

@@ -18,6 +18,7 @@ jobs:
         with:
           repository: smorinlabs/contributors-please-action
           path: contributors-please-action
+          token: ${{ secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN || github.token }}
 
       - uses: actions/setup-node@v6
         with:
