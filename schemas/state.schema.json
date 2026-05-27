@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/smorinlabs/contributors-please/main/schemas/state.schema.json",
+  "title": "contributors-please state record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "login",
+    "name",
+    "profile",
+    "avatar",
+    "source",
+    "pinned",
+    "categories",
+    "title",
+    "last_updated"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "source": { "const": "commit" }
+        },
+        "required": ["source"]
+      },
+      "then": {
+        "required": ["commits", "first_seen"]
+      }
+    }
+  ],
+  "properties": {
+    "login": { "type": "string", "minLength": 1 },
+    "name": { "type": "string" },
+    "profile": { "type": "string", "minLength": 1 },
+    "avatar": { "type": "string" },
+    "source": {
+      "type": "string",
+      "enum": ["commit", "declared"]
+    },
+    "pinned": { "type": "boolean" },
+    "categories": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "title": { "type": "string" },
+    "emoji": { "type": "string" },
+    "commits": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "first_seen": {
+      "type": "string",
+      "format": "date"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date"
+    }
+  }
+}

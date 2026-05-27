@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/smorinlabs/contributors-please/main/schemas/config.schema.json",
+  "title": "contributors-please config",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "classifier": {
+      "type": "string",
+      "enum": ["path"],
+      "default": "path"
+    },
+    "classification": {
+      "$ref": "#/$defs/classification"
+    },
+    "identity_map": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["login", "emails"],
+        "properties": {
+          "login": { "type": "string", "minLength": 1 },
+          "emails": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "no_reply_domain": { "type": "string", "minLength": 1 },
+    "packages": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    }
+  },
+  "$defs": {
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["categories", "default"],
+      "properties": {
+        "categories": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/category" }
+        },
+        "default": { "$ref": "#/$defs/defaultCategory" },
+        "combinations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/combination" },
+          "default": []
+        },
+        "multi_category_resolution": {
+          "type": "string",
+          "enum": ["priority", "combine"],
+          "default": "priority"
+        }
+      }
+    },
+    "category": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "paths"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "emoji": { "type": "string" },
+        "paths": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "defaultCategory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "emoji": { "type": "string" }
+      }
+    },
+    "combination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "when"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "emoji": { "type": "string" },
+        "when": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}
+

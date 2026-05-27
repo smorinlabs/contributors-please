@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/checkout@v6
+        with:
+          repository: smorinlabs/contributors-please-action
+          path: contributors-please-action
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+        working-directory: ${{ github.workspace }}
+      - run: npm test
+        working-directory: ${{ github.workspace }}
+      - run: npm run schema:codegen
+        working-directory: ${{ github.workspace }}
+      - run: git diff --exit-code -- src/types
+        working-directory: ${{ github.workspace }}
+      - run: npm run build
+        working-directory: ${{ github.workspace }}
+      - run: npm run check:dist-cli
+        working-directory: ${{ github.workspace }}
+      - run: npm run check:pack
+        working-directory: ${{ github.workspace }}
+      - run: npm run check:public-api-snapshot
+        working-directory: ${{ github.workspace }}
+      - run: npm run test:public-api
+        working-directory: ${{ github.workspace }}
+      - run: node scripts/check-action-outputs.mjs contributors-please-action
+        working-directory: ${{ github.workspace }}
+      - run: git diff --exit-code -- dist
+        working-directory: ${{ github.workspace }}

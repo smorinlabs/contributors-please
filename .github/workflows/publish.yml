@@ -1,0 +1,49 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/checkout@v6
+        with:
+          repository: smorinlabs/contributors-please-action
+          path: contributors-please-action
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - name: Verify tag matches package version
+        run: |
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          if [ "v${PACKAGE_VERSION}" != "${GITHUB_REF_NAME}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match package version v${PACKAGE_VERSION}" >&2
+            exit 1
+          fi
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run schema:codegen
+      - run: git diff --exit-code -- src/types
+      - run: npm run build
+      - run: npm run check:dist-cli
+      - run: npm run check:pack
+      - run: npm run check:public-api-snapshot
+      - run: npm run test:public-api
+      - run: node scripts/check-action-outputs.mjs contributors-please-action
+      - run: git diff --exit-code -- dist
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
