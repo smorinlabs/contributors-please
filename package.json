@@ -1,0 +1,54 @@
+{
+  "name": "@smorinlabs/contributors-please",
+  "version": "1.0.0",
+  "description": "Incremental, path-aware contributor recognition engine and CLI",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/lib.js",
+  "types": "./dist/lib.d.ts",
+  "bin": {
+    "contributors-please": "dist/cli.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist coverage .dist-cli",
+    "build": "node scripts/build.mjs",
+    "test": "vitest run",
+    "schema:codegen": "json2ts -i schemas/config.schema.json -o src/types/config.ts && json2ts -i schemas/state.schema.json -o src/types/state.ts",
+    "check:action-outputs": "node scripts/check-action-outputs.mjs ../contributors-please-action",
+    "check:dist-cli": "node scripts/check-dist-cli.mjs",
+    "check:pack": "npm_config_cache=${TMPDIR:-/tmp}/contributors-please-npm-cache npm pack --dry-run",
+    "check:public-api-snapshot": "node scripts/check-public-api.mjs dist/lib.d.ts test/fixtures/public-api.d.ts",
+    "test:public-api": "tsc --noEmit --target ES2022 --module NodeNext --moduleResolution NodeNext --lib ES2022 --strict --skipLibCheck test/public-api-types.ts",
+    "check": "npm test && npm run schema:codegen && git diff --exit-code -- src/types && npm run build && npm run check:dist-cli && npm run check:pack && npm run check:public-api-snapshot && npm run test:public-api && npm run check:action-outputs && git diff --exit-code -- dist"
+  },
+  "dependencies": {
+    "@octokit/graphql": "^8.2.2",
+    "@octokit/rest": "^21.1.1",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "diff": "^8.0.2",
+    "minimatch": "^10.0.3",
+    "yaml": "^2.8.1",
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.0",
+    "@types/yargs": "^17.0.33",
+    "@vercel/ncc": "^0.38.4",
+    "json-schema-to-typescript": "^15.0.4",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
