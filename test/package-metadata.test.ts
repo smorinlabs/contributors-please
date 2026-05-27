@@ -40,6 +40,7 @@ describe("package metadata", () => {
 
     expect(pkg.scripts.check).toContain("npm run schema:codegen");
     expect(pkg.scripts.check).toContain("git diff --exit-code -- src/types");
+    expect(pkg.scripts.check).toContain("npm run check:action-outputs");
     expect(pkg.scripts.check).toContain("git diff --exit-code -- dist");
   });
 });

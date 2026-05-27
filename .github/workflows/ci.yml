@@ -11,11 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/checkout@v6
-        with:
-          repository: smorinlabs/contributors-please-action
-          path: contributors-please-action
-
       - uses: actions/setup-node@v6
         with:
           node-version: 24
@@ -38,8 +33,6 @@ jobs:
       - run: npm run check:public-api-snapshot
         working-directory: ${{ github.workspace }}
       - run: npm run test:public-api
-        working-directory: ${{ github.workspace }}
-      - run: node scripts/check-action-outputs.mjs contributors-please-action
         working-directory: ${{ github.workspace }}
       - run: git diff --exit-code -- dist
         working-directory: ${{ github.workspace }}
