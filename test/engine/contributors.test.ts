@@ -215,6 +215,7 @@ describe("Contributors", () => {
         repoPath: repo,
         bootstrap: true,
         today: "2026-05-26",
+        committerLogin: "contributors-please-bot[bot]",
         configOverrides: {
           output_file: "TEAM.md",
           state_file: ".team-contributors.jsonl",
