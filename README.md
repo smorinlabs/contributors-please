@@ -98,6 +98,21 @@ From `1.0.0` forward, the package root export surface is covered by semver.
 Deep imports such as
 `@smorinlabs/contributors-please/dist/engine/...` are not stable API.
 
+## Release Setup
+
+Tags matching `v*.*.*` run the publish workflow. Before tagging a release,
+configure these repository secrets and variables:
+
+- `NPM_TOKEN`: npm automation token allowed to publish
+  `@smorinlabs/contributors-please` with public access.
+- `CONTRIBUTORS_PLEASE_ACTION_TOKEN`: GitHub token with read access to the
+  private `smorinlabs/contributors-please-action` repository while that sibling
+  repo remains private.
+- `CONTRIBUTORS_PLEASE_ACTION_REF`: optional repository variable selecting the
+  action repository ref used for the action-output consistency check. It
+  defaults to `contributors-please-action-impl` until the action implementation
+  is merged to `main`.
+
 ## GitHub Enterprise
 
 Pass `serverUrl`, `apiUrl`, or `graphqlUrl` to `GitHubClient.create()` when a

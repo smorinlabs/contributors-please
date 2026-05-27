@@ -61,4 +61,12 @@ describe("publish workflow", () => {
       NODE_AUTH_TOKEN: "${{ secrets.NPM_TOKEN }}",
     });
   });
+
+  it("documents release secrets and cross-repo checkout configuration", async () => {
+    const readme = await readFile("README.md", "utf8");
+
+    expect(readme).toContain("NPM_TOKEN");
+    expect(readme).toContain("CONTRIBUTORS_PLEASE_ACTION_TOKEN");
+    expect(readme).toContain("CONTRIBUTORS_PLEASE_ACTION_REF");
+  });
 });
