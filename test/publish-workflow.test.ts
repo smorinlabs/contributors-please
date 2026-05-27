@@ -32,6 +32,7 @@ describe("publish workflow", () => {
     const setupNode = steps.find(step => step.with?.["registry-url"]);
     expect(actionCheckoutStep?.with).toMatchObject({
       path: "contributors-please-action",
+      ref: "${{ vars.CONTRIBUTORS_PLEASE_ACTION_REF || 'contributors-please-action-impl' }}",
       token: "${{ secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN || github.token }}",
     });
     expect(setupNode?.with).toMatchObject({
