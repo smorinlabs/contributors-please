@@ -132,7 +132,7 @@ export class Contributors {
     const stateExists = await exists(statePath);
     if (!stateExists && !this.options.bootstrap) {
       throw new Error(
-        `No state file found at \`${this.config.stateFile}\`. Run npx @smorinlabs/contributors-please init locally to bootstrap, then commit the result.`
+        `No state file found at \`${this.config.stateFile}\`. Run npx contributors-please init locally to bootstrap, then commit the result.`
       );
     }
 

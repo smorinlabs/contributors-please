@@ -8,8 +8,10 @@ describe("publish workflow", () => {
       await readFile(".github/workflows/publish.yml", "utf8")
     ) as {
       on: { push: { tags: string[] } };
+      permissions: Record<string, string>;
       jobs: {
         publish: {
+          environment?: string;
           steps: Array<{
             uses?: string;
             run?: string;
@@ -22,6 +24,11 @@ describe("publish workflow", () => {
 
     expect(workflow.on.push.tags).toContain("v*.*.*");
     expect(workflow.on.push.tags).not.toContain("v*");
+    expect(workflow.permissions).toMatchObject({
+      contents: "read",
+      "id-token": "write",
+    });
+    expect(workflow.jobs.publish.environment).toBe("npm");
 
     const steps = workflow.jobs.publish.steps;
     const actionCheckoutStep = steps.find(
@@ -38,7 +45,9 @@ describe("publish workflow", () => {
     expect(setupNode?.with).toMatchObject({
       "node-version": 24,
       "registry-url": "https://registry.npmjs.org",
+      "package-manager-cache": false,
     });
+    expect(setupNode?.with).not.toHaveProperty("cache");
 
     const outputCheck = steps.findIndex(step =>
       step.run?.includes("check-action-outputs.mjs")
@@ -50,22 +59,21 @@ describe("publish workflow", () => {
     );
     const npmCi = steps.findIndex(step => step.run === "npm ci");
     const distDiff = steps.findIndex(step => step.run === "git diff --exit-code -- dist");
-    const publish = steps.findIndex(step => step.run === "npm publish --access public");
+    const publish = steps.findIndex(step => step.run === "npm publish");
 
     expect(versionCheck).toBeGreaterThanOrEqual(0);
     expect(npmCi).toBeGreaterThan(versionCheck);
     expect(outputCheck).toBeGreaterThanOrEqual(0);
     expect(distDiff).toBeGreaterThan(outputCheck);
     expect(publish).toBeGreaterThan(distDiff);
-    expect(steps[publish]?.env).toMatchObject({
-      NODE_AUTH_TOKEN: "${{ secrets.NPM_TOKEN }}",
-    });
+    expect(steps[publish]?.env).toBeUndefined();
   });
 
-  it("documents release secrets and cross-repo checkout configuration", async () => {
+  it("documents trusted publishing and cross-repo checkout configuration", async () => {
     const readme = await readFile("README.md", "utf8");
 
-    expect(readme).toContain("NPM_TOKEN");
+    expect(readme).toContain("Trusted Publishing");
+    expect(readme).toContain("environment `npm`");
     expect(readme).toContain("CONTRIBUTORS_PLEASE_ACTION_TOKEN");
     expect(readme).toContain("CONTRIBUTORS_PLEASE_ACTION_REF");
     expect(readme).toContain("defaults to `main`");
