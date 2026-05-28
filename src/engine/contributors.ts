@@ -398,9 +398,32 @@ function mergeConfig(raw: unknown, overrides: unknown): unknown {
     return raw;
   }
   if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    const rawRecord = raw as Record<string, unknown>;
+    const overrideRecord = overrides as Record<string, unknown>;
+    if (
+      rawRecord.packages &&
+      typeof rawRecord.packages === "object" &&
+      !Array.isArray(rawRecord.packages)
+    ) {
+      const packages = rawRecord.packages as Record<string, unknown>;
+      const rootPackage =
+        packages["."] && typeof packages["."] === "object" && !Array.isArray(packages["."])
+          ? (packages["."] as Record<string, unknown>)
+          : {};
+      return {
+        ...rawRecord,
+        packages: {
+          ...packages,
+          ".": {
+            ...rootPackage,
+            ...overrideRecord,
+          },
+        },
+      };
+    }
     return {
-      ...raw,
-      ...(overrides as Record<string, unknown>),
+      ...rawRecord,
+      ...overrideRecord,
     };
   }
   return overrides;

@@ -5,34 +5,158 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
-  check:
+  schema:
+    name: CP-LIB-001 schema
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
-
       - run: npm ci
-        working-directory: ${{ github.workspace }}
-      - run: npm test
-        working-directory: ${{ github.workspace }}
+      - run: npm test -- test/schemas.test.ts test/engine/config.test.ts
       - run: npm run schema:codegen
-        working-directory: ${{ github.workspace }}
       - run: git diff --exit-code -- src/types
-        working-directory: ${{ github.workspace }}
-      - run: npm run build
-        working-directory: ${{ github.workspace }}
-      - run: npm run check:dist-cli
-        working-directory: ${{ github.workspace }}
-      - run: npm run check:pack
-        working-directory: ${{ github.workspace }}
-      - run: npm run check:public-api-snapshot
-        working-directory: ${{ github.workspace }}
+
+  classifier:
+    name: CP-LIB-002 classifier
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test -- test/engine/path-classifier.test.ts
+
+  state:
+    name: CP-LIB-003 state
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test -- test/engine/state.test.ts test/engine/contributors.test.ts
+
+  rendering:
+    name: CP-LIB-004/013/014/015/016 rendering
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Run render tests
+        run: npm test -- test/engine/render.test.ts
+
+  discovery-identity:
+    name: CP-LIB-005 discovery identity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test -- test/engine/git.test.ts test/engine/identity-join.test.ts test/engine/contributors.test.ts
+
+  selection:
+    name: CP-LIB-006 selection
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test -- test/engine/contributors.test.ts
+
+  engine-idempotency:
+    name: CP-LIB-007 engine idempotency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test -- test/engine/contributors.test.ts
+
+  cli:
+    name: CP-LIB-008 cli
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test -- test/cli.test.ts
+
+  github-client:
+    name: CP-LIB-009 github client
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test -- test/engine/github.test.ts test/engine/identity-join.test.ts
+
+  public-api:
+    name: CP-LIB-010 public api
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test -- test/public-api.test.ts test/public-api-snapshot.test.ts
       - run: npm run test:public-api
-        working-directory: ${{ github.workspace }}
+
+  package-dist:
+    name: CP-LIB-011 package dist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test -- test/package-metadata.test.ts test/version.test.ts test/publish-workflow.test.ts
+      - run: npm run build
+      - run: npm run check:dist-cli
+      - run: npm run check:pack
       - run: git diff --exit-code -- dist
-        working-directory: ${{ github.workspace }}
+
+  run-result-contract:
+    name: CP-LIB-012 run result contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test -- test/action-outputs.test.ts test/engine/contributors.test.ts
