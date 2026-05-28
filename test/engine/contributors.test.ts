@@ -238,6 +238,55 @@ describe("Contributors", () => {
     }
   });
 
+  it("fromConfigFile applies action-style config overrides to packages root form", async () => {
+    const repo = await mkdtemp(join(tmpdir(), "contributors-run-"));
+    try {
+      await git(repo, ["init"]);
+      await commit(repo);
+      await writeFile(
+        join(repo, ".contributors.yml"),
+        [
+          "packages:",
+          "  \".\":",
+          "    entry_template: '{{login}} package-root'",
+          "",
+        ].join("\n")
+      );
+      await writeFile(
+        join(repo, ".team-contributors.jsonl"),
+        `${JSON.stringify({
+          login: "config-tester",
+          name: "Config Tester",
+          profile: "https://example.com/config-tester",
+          avatar: "",
+          source: "commit",
+          pinned: false,
+          categories: ["code"],
+          title: "Code Contributor",
+          emoji: "code",
+          commits: 2,
+          first_seen: "2026-05-27",
+          last_updated: "2026-05-27",
+        })}\n`
+      );
+
+      const contributors = await Contributors.fromConfigFile(await fakeGitHub(), {
+        repoPath: repo,
+        configOverrides: {
+          output_file: "TEAM.md",
+          state_file: ".team-contributors.jsonl",
+          min_contributions: 2,
+        },
+      });
+
+      const result = await contributors.run();
+
+      expect(result.proposedOutputFile).toBe("config-tester package-root\n");
+    } finally {
+      await rm(repo, { recursive: true, force: true });
+    }
+  });
+
   it("warns when declared state records are missing first_seen", async () => {
     const repo = await mkdtemp(join(tmpdir(), "contributors-run-"));
     try {
