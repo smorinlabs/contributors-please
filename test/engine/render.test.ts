@@ -21,8 +21,19 @@ const record: Contributor = {
 
 describe("parseTemplate", () => {
   it("substitutes contributor placeholders", () => {
-    expect(parseTemplate("{{login}} {{name}} {{title}} {{commits}}", record)).toBe(
-      "smorin Steve Morin Code Contributor 7"
+    expect(
+      parseTemplate(
+        "{{login}} {{name}} {{avatar}} {{profile}} {{title}} {{commits}} {{emoji}}",
+        record
+      )
+    ).toBe(
+      "smorin Steve Morin https://avatars.githubusercontent.com/u/1 https://github.com/smorin Code Contributor 7 code"
+    );
+  });
+
+  it("leaves unknown placeholders unchanged", () => {
+    expect(parseTemplate("{{login}} {{unknown}}", record)).toBe(
+      "smorin {{unknown}}"
     );
   });
 });
@@ -40,6 +51,21 @@ describe("render", () => {
     expect(result.count).toBe(1);
   });
 
+  it("groups entries by columns-per-row", () => {
+    const ada = { ...record, login: "ada", name: "Ada", commits: 4 };
+    const grace = { ...record, login: "grace", name: "Grace", commits: 3 };
+    const result = render({
+      records: [record, ada, grace],
+      config: normalizeConfig({
+        entry_template: "{{login}}",
+        columns_per_row: 2,
+      }),
+    });
+
+    expect(result.content).toBe("smorin ada\ngrace\n");
+    expect(result.count).toBe(3);
+  });
+
   it("renders empty-text when there are no contributors", () => {
     const result = render({
       records: [],
@@ -47,6 +73,16 @@ describe("render", () => {
     });
 
     expect(result.content).toBe("No contributors yet.\n");
+    expect(result.count).toBe(0);
+  });
+
+  it("renders empty output when there are no contributors and empty-text is unset", () => {
+    const result = render({
+      records: [],
+      config: normalizeConfig({}),
+    });
+
+    expect(result.content).toBe("");
     expect(result.count).toBe(0);
   });
 
@@ -63,6 +99,30 @@ describe("render", () => {
     expect(result.content).toBe("# Contributors\n\n- smorin\n\nThanks.\n");
   });
 
+  it("wraps rendered content with header only", () => {
+    const result = render({
+      records: [record],
+      config: normalizeConfig({
+        header: "# Contributors",
+        entry_template: "- {{login}}",
+      }),
+    });
+
+    expect(result.content).toBe("# Contributors\n\n- smorin\n");
+  });
+
+  it("wraps rendered content with footer only", () => {
+    const result = render({
+      records: [record],
+      config: normalizeConfig({
+        footer: "Thanks.",
+        entry_template: "- {{login}}",
+      }),
+    });
+
+    expect(result.content).toBe("- smorin\n\nThanks.\n");
+  });
+
   it("inserts rendered content into a template placeholder", () => {
     const result = render({
       records: [record],
@@ -75,6 +135,58 @@ describe("render", () => {
     });
 
     expect(result.content).toBe("Before\n- smorin\nAfter\n");
+  });
+
+  it("inserts rendered content into a custom template placeholder", () => {
+    const result = render({
+      records: [record],
+      config: normalizeConfig({
+        template_file: ".github/contributors.template.md",
+        template_placeholder: "[[contributors]]",
+        entry_template: "- {{login}}",
+      }),
+      templateContent: "Before\n[[contributors]]\nAfter\n",
+    });
+
+    expect(result.content).toBe("Before\n- smorin\nAfter\n");
+  });
+
+  it("fails template mode when the placeholder is missing", () => {
+    expect(() =>
+      render({
+        records: [record],
+        config: normalizeConfig({
+          template_file: ".github/contributors.template.md",
+          entry_template: "- {{login}}",
+        }),
+        templateContent: "Before\nAfter\n",
+      })
+    ).toThrow("template-file must contain exactly one placeholder");
+  });
+
+  it("fails template mode when the placeholder is duplicated", () => {
+    expect(() =>
+      render({
+        records: [record],
+        config: normalizeConfig({
+          template_file: ".github/contributors.template.md",
+          entry_template: "- {{login}}",
+        }),
+        templateContent:
+          "Before\n<!-- CONTRIBUTORS -->\nMiddle\n<!-- CONTRIBUTORS -->\nAfter\n",
+      })
+    ).toThrow("template-file must contain exactly one placeholder");
+  });
+
+  it("fails template mode when template content is not provided", () => {
+    expect(() =>
+      render({
+        records: [record],
+        config: normalizeConfig({
+          template_file: ".github/contributors.template.md",
+        }),
+      })
+    ).toThrow("template-file .github/contributors.template.md was not provided");
   });
 
   it("replaces only the in-place marker body", () => {
@@ -94,6 +206,33 @@ describe("render", () => {
     );
   });
 
+  it("replaces custom in-place markers", () => {
+    const result = render({
+      records: [record],
+      config: normalizeConfig({
+        in_place: true,
+        in_place_marker_start: "<!-- cp:start -->",
+        in_place_marker_end: "<!-- cp:end -->",
+        output_file: "README.md",
+        entry_template: "- {{login}}",
+      }),
+      existingContent: "Before\n<!-- cp:start -->\nold\n<!-- cp:end -->\nAfter\n",
+    });
+
+    expect(result.content).toBe(
+      "Before\n<!-- cp:start -->\n- smorin\n<!-- cp:end -->\nAfter\n"
+    );
+  });
+
+  it("fails in-place mode when existing content is not provided", () => {
+    expect(() =>
+      render({
+        records: [record],
+        config: normalizeConfig({ in_place: true }),
+      })
+    ).toThrow("in-place output content was not provided");
+  });
+
   it("fails in-place mode when a marker is missing", () => {
     expect(() =>
       render({
@@ -103,5 +242,26 @@ describe("render", () => {
       })
     ).toThrow("in-place output is missing marker");
   });
-});
 
+  it("fails in-place mode when a marker is duplicated", () => {
+    expect(() =>
+      render({
+        records: [record],
+        config: normalizeConfig({ in_place: true }),
+        existingContent:
+          "<!-- contributors-please:start -->\nold\n<!-- contributors-please:start -->\n<!-- contributors-please:end -->\n",
+      })
+    ).toThrow("in-place output is missing marker or has duplicates");
+  });
+
+  it("fails in-place mode when end marker appears before start marker", () => {
+    expect(() =>
+      render({
+        records: [record],
+        config: normalizeConfig({ in_place: true }),
+        existingContent:
+          "<!-- contributors-please:end -->\nold\n<!-- contributors-please:start -->\n",
+      })
+    ).toThrow("in-place output end marker appears before start marker");
+  });
+});
