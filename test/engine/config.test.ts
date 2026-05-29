@@ -70,6 +70,29 @@ describe("normalizeConfig", () => {
     );
   });
 
+  it("rejects unknown / misplaced config keys", () => {
+    expect(() => normalizeConfig({ in_palce: true })).toThrow(
+      /Unknown config key/
+    );
+    // An action-input-style (hyphenated) key is also unknown in the config file.
+    expect(() => normalizeConfig({ "in-place": true })).toThrow(
+      /Unknown config key/
+    );
+  });
+
+  it("accepts documented rendering keys", () => {
+    expect(() =>
+      normalizeConfig({
+        in_place: true,
+        columns_per_row: 1,
+        entry_template: "- {{name}}",
+        output_file: "CONTRIBUTORS.md",
+        sort: "contributions",
+        min_contributions: 1,
+      })
+    ).not.toThrow();
+  });
+
   it("rejects mutually exclusive wrapper modes", () => {
     expect(() =>
       normalizeConfig({

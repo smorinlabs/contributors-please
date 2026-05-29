@@ -1,3 +1,10 @@
+import {
+  Ajv2020,
+  type ErrorObject,
+  type ValidateFunction,
+} from "ajv/dist/2020.js";
+import configSchema from "../../schemas/config.schema.json" with { type: "json" };
+
 export type ClassifierName = "path";
 export type MultiCategoryResolution = "priority" | "combine";
 
@@ -101,8 +108,37 @@ export class ConfigError extends Error {
   }
 }
 
+let cachedConfigValidator: ValidateFunction | undefined;
+
+// Reject unknown / misplaced config keys at load time. Other shape issues
+// (classifier enum, value types, wrapper-mode exclusivity) keep their curated
+// messages from the checks below, so we surface only additionalProperties
+// violations here.
+function validateConfigSchema(record: unknown): void {
+  cachedConfigValidator ??= new Ajv2020({ allErrors: true }).compile(
+    configSchema as object
+  );
+  if (cachedConfigValidator(record)) {
+    return;
+  }
+  const unknownKeys = (cachedConfigValidator.errors ?? [])
+    .filter((error: ErrorObject) => error.keyword === "additionalProperties")
+    .map((error: ErrorObject) => {
+      const key = (error.params as { additionalProperty?: string })
+        .additionalProperty;
+      return `${error.instancePath || ""}/${String(key)}`;
+    });
+  if (unknownKeys.length > 0) {
+    throw new ConfigError(
+      `Unknown config key(s): ${unknownKeys.join(", ")}. ` +
+        "Remove them or check placement against schemas/config.schema.json."
+    );
+  }
+}
+
 export function normalizeConfig(raw: unknown = {}): ContributorsConfig {
   const record = asRecord(raw);
+  validateConfigSchema(record);
   const root = normalizeRootPackage(record);
   const classifier = normalizeClassifier(root.classifier);
   const classification = normalizeClassification(root.classification);
