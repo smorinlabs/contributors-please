@@ -20380,7 +20380,7 @@ function nextLink(header) {
 }
 
 ;// CONCATENATED MODULE: ./src/version.ts
-const VERSION = "1.0.1";
+const VERSION = "1.0.2";
 
 ;// CONCATENATED MODULE: ./src/cli.ts
 
