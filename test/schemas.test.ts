@@ -15,6 +15,33 @@ describe("schemas", () => {
     expect(validate({ classifier: "reviews" })).toBe(false);
   });
 
+  it("accepts documented rendering keys and rejects unknown/misplaced keys", async () => {
+    const schema = JSON.parse(
+      await readFile("schemas/config.schema.json", "utf8")
+    );
+    const ajv = new Ajv2020({ allErrors: true });
+    const validate = ajv.compile(schema);
+
+    // Rendering settings are part of the config contract.
+    expect(
+      validate({
+        output_file: "CONTRIBUTORS.md",
+        in_place: true,
+        in_place_marker_start: "<!-- contributors-please:start -->",
+        in_place_marker_end: "<!-- contributors-please:end -->",
+        entry_template: "- [{{name}}]({{profile}})",
+        columns_per_row: 1,
+        sort: "contributions",
+        min_contributions: 1,
+        ignore: ["bot[bot]"],
+      })
+    ).toBe(true);
+
+    // Typos and action-input-style (hyphenated) keys are hard errors.
+    expect(validate({ in_palce: true })).toBe(false);
+    expect(validate({ "in-place": true })).toBe(false);
+  });
+
   it("validates state-file records", async () => {
     const schema = JSON.parse(
       await readFile("schemas/state.schema.json", "utf8")

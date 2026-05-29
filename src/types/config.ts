@@ -13,12 +13,29 @@ export interface ContributorsPleaseConfig {
     emails: string[];
   }[];
   no_reply_domain?: string;
+  output_file?: string;
+  state_file?: string;
+  config_file?: string;
+  template_file?: string;
+  template_placeholder?: string;
+  header?: string;
+  footer?: string;
+  in_place?: boolean;
+  in_place_marker_start?: string;
+  in_place_marker_end?: string;
+  entry_template?: string;
+  empty_text?: string;
+  columns_per_row?: number;
+  sort?: "contributions" | "alphabetical" | "first-seen";
+  min_contributions?: number;
+  ignore?: string | string[];
+  unignore?: string | string[];
+  pin_warn_on_stale?: boolean;
   packages?: {
     [k: string]: {
       [k: string]: unknown;
     };
   };
-  [k: string]: unknown;
 }
 export interface Classification {
   categories: Category[];
