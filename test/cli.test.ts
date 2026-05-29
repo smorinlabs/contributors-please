@@ -51,7 +51,7 @@ describe("runCli", () => {
     });
 
     expect(code).toBe(0);
-    expect(output).toEqual(["1.0.0"]);
+    expect(output).toEqual(["1.0.1"]);
   });
 
   it("validates a config file", async () => {

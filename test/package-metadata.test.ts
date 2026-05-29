@@ -26,7 +26,7 @@ describe("package metadata", () => {
     ) as PackageJson;
 
     expect(pkg.name).toBe("contributors-please");
-    expect(pkg.version).toBe("1.0.0");
+    expect(pkg.version).toBe("1.0.1");
     expect(pkg.private).not.toBe(true);
     expect(pkg.publishConfig).toMatchObject({ access: "public" });
     expect(pkg.repository).toMatchObject({

@@ -30,7 +30,7 @@ const _publicTypeSmoke: PublicTypeSmoke | undefined = undefined;
 describe("public API", () => {
   it("exports the documented runtime surface", () => {
     expect(_publicTypeSmoke).toBeUndefined();
-    expect(VERSION).toBe("1.0.0");
+    expect(VERSION).toBe("1.0.1");
     expect(Contributors).toBeTypeOf("function");
     expect(GitHubClient).toBeTypeOf("function");
     expect(PathClassifier).toBeTypeOf("function");
