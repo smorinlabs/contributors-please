@@ -3,7 +3,7 @@
   "$id": "https://raw.githubusercontent.com/smorinlabs/contributors-please/main/schemas/config.schema.json",
   "title": "contributors-please config",
   "type": "object",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "properties": {
     "classifier": {
       "type": "string",
@@ -29,6 +29,37 @@
       }
     },
     "no_reply_domain": { "type": "string", "minLength": 1 },
+    "output_file": { "type": "string", "minLength": 1 },
+    "state_file": { "type": "string", "minLength": 1 },
+    "config_file": { "type": "string", "minLength": 1 },
+    "template_file": { "type": "string" },
+    "template_placeholder": { "type": "string" },
+    "header": { "type": "string" },
+    "footer": { "type": "string" },
+    "in_place": { "type": "boolean" },
+    "in_place_marker_start": { "type": "string" },
+    "in_place_marker_end": { "type": "string" },
+    "entry_template": { "type": "string" },
+    "empty_text": { "type": "string" },
+    "columns_per_row": { "type": "integer" },
+    "sort": {
+      "type": "string",
+      "enum": ["contributions", "alphabetical", "first-seen"]
+    },
+    "min_contributions": { "type": "integer" },
+    "ignore": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "unignore": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "pin_warn_on_stale": { "type": "boolean" },
     "packages": {
       "type": "object",
       "additionalProperties": {
