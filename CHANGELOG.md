@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file. The format 
 
 Releases are managed by [release-please](https://github.com/googleapis/release-please) from conventional commits on `main`.
 
+## [1.1.0](https://github.com/smorinlabs/contributors-please/compare/v1.0.2...v1.1.0) (2026-06-08)
+
+
+### Features
+
+* **ci:** add release-please for automated version bumps + GitHub Releases ([#8](https://github.com/smorinlabs/contributors-please/issues/8)) ([85041b2](https://github.com/smorinlabs/contributors-please/commit/85041b20838d958944b44d9ed537edcf8973e2d4))
+
 ## 1.0.2
 
 - Baseline entry: v1.0.2 is the last manually-cut release and is the version release-please takes over from. Prior releases (v0.0.1, v1.0.0, v1.0.1) were cut manually via `chore(release): X.Y.Z` commits; see git tags and the npm registry for history. Future entries are managed by release-please from conventional commits on `main`.
