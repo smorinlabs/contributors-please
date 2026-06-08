@@ -130,8 +130,8 @@ jobs:
         run: |
           if ! git diff --quiet -- dist src/types; then
             git add dist src/types
-            git commit -m "chore: sync dist"
+            git commit -m "chore: sync generated files (dist + types)"
             git push
           else
-            echo "dist already in sync"
+            echo "generated files already in sync"
           fi
