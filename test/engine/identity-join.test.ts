@@ -174,3 +174,56 @@ describe("joinIdentities", () => {
     ]);
   });
 });
+
+describe("parseMailmap", () => {
+  it("returns an empty map for undefined or empty input", () => {
+    expect(parseMailmap(undefined)).toEqual(new Map());
+    expect(parseMailmap("")).toEqual(new Map());
+  });
+
+  it("skips comment lines and blank lines", () => {
+    const text = [
+      "# this is a header comment",
+      "",
+      "Ada Lovelace <123+ada@users.noreply.github.com> <ada@old.example.com>",
+      "   ",
+      "  # leading-whitespace comment",
+      "Grace Hopper <456+grace@users.noreply.github.com> <grace@old.example.com>",
+    ].join("\n");
+
+    expect(parseMailmap(text)).toEqual(
+      new Map([
+        ["ada@old.example.com", "123+ada@users.noreply.github.com"],
+        ["grace@old.example.com", "456+grace@users.noreply.github.com"],
+      ])
+    );
+  });
+
+  it("silently skips lines with fewer than two emails", () => {
+    // git mailmap supports `Name <email>` (name-only override) entries that
+    // carry only a single email. This tool only maps email-to-email, so such
+    // lines must be ignored rather than crashing or producing a partial entry.
+    const text = [
+      "Ada Lovelace <ada@example.com>",
+      "Grace Hopper <456+grace@users.noreply.github.com> <grace@old.example.com>",
+      "Just a stray line with no angle brackets",
+    ].join("\n");
+
+    expect(parseMailmap(text)).toEqual(
+      new Map([["grace@old.example.com", "456+grace@users.noreply.github.com"]])
+    );
+  });
+
+  it("handles CRLF line endings", () => {
+    const text =
+      "Ada Lovelace <123+ada@users.noreply.github.com> <ada@old.example.com>\r\n" +
+      "Grace Hopper <456+grace@users.noreply.github.com> <grace@old.example.com>\r\n";
+
+    expect(parseMailmap(text)).toEqual(
+      new Map([
+        ["ada@old.example.com", "123+ada@users.noreply.github.com"],
+        ["grace@old.example.com", "456+grace@users.noreply.github.com"],
+      ])
+    );
+  });
+});
