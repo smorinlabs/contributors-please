@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file. The format 
 
 Releases are managed by [release-please](https://github.com/googleapis/release-please) from conventional commits on `main`.
 
+## [1.1.1](https://github.com/smorinlabs/contributors-please/compare/v1.1.0...v1.1.1) (2026-06-08)
+
+
+### Bug Fixes
+
+* **test:** cover parseMailmap comment, blank, malformed, and CRLF lines ([#14](https://github.com/smorinlabs/contributors-please/issues/14)) ([3f58d9e](https://github.com/smorinlabs/contributors-please/commit/3f58d9e6f32b946fe7f9a7de286ac56ec412ce10))
+
+
+### Refactoring
+
+* **version:** derive VERSION from package.json (single source of truth) ([#12](https://github.com/smorinlabs/contributors-please/issues/12)) ([6457823](https://github.com/smorinlabs/contributors-please/commit/645782362e8111aa4c4bb9212bc8efb4a3d82269))
+
+
+### CI/CD
+
+* add sync-dist job to release-please workflow ([#10](https://github.com/smorinlabs/contributors-please/issues/10)) ([d3e0906](https://github.com/smorinlabs/contributors-please/commit/d3e09068ed6df130518dfa72eb9788291b9f00c1))
+
 ## [1.1.0](https://github.com/smorinlabs/contributors-please/compare/v1.0.2...v1.1.0) (2026-06-08)
 
 
