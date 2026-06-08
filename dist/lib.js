@@ -20378,7 +20378,7 @@ function nextLink(header) {
 }
 
 ;// CONCATENATED MODULE: ./package.json
-const package_namespaceObject = {"rE":"1.1.0"};
+const package_namespaceObject = {"rE":"1.1.1"};
 ;// CONCATENATED MODULE: ./src/version.ts
 // Single source of truth for the package version: package.json.
 // release-please bumps package.json; ncc bundles the resolved literal
