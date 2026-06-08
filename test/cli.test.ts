@@ -51,7 +51,10 @@ describe("runCli", () => {
     });
 
     expect(code).toBe(0);
-    expect(output).toEqual(["1.0.2"]);
+    expect(output).toHaveLength(1);
+    // VERSION is the hardcoded src/version.ts constant — assert semver shape,
+    // not a literal, so release-please bumps don't require a manual test edit.
+    expect(output[0]).toMatch(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/);
   });
 
   it("validates a config file", async () => {

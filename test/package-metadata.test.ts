@@ -26,7 +26,8 @@ describe("package metadata", () => {
     ) as PackageJson;
 
     expect(pkg.name).toBe("contributors-please");
-    expect(pkg.version).toBe("1.0.2");
+    // Version is bumped automatically by release-please; assert shape only.
+    expect(pkg.version).toMatch(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/);
     expect(pkg.private).not.toBe(true);
     expect(pkg.publishConfig).toMatchObject({ access: "public" });
     expect(pkg.repository).toMatchObject({
