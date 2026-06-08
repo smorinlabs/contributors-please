@@ -30,7 +30,9 @@ const _publicTypeSmoke: PublicTypeSmoke | undefined = undefined;
 describe("public API", () => {
   it("exports the documented runtime surface", () => {
     expect(_publicTypeSmoke).toBeUndefined();
-    expect(VERSION).toBe("1.0.2");
+    // VERSION is intentionally decoupled from package.json (see
+    // test/version.test.ts); assert semver shape only.
+    expect(VERSION).toMatch(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/);
     expect(Contributors).toBeTypeOf("function");
     expect(GitHubClient).toBeTypeOf("function");
     expect(PathClassifier).toBeTypeOf("function");
