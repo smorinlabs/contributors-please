@@ -18,7 +18,7 @@ export interface RunResult {
     proposedOutputFile: string;
     warnings: string[];
 }
-export declare const DEFAULT_COMMIT_MESSAGE = "docs: update contributors";
+export declare const DEFAULT_COMMIT_MESSAGE: string;
 export interface CommitOptions {
     message?: string;
     skipCi?: boolean;

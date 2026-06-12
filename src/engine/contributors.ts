@@ -48,7 +48,7 @@ export interface RunResult {
   warnings: string[];
 }
 
-export const DEFAULT_COMMIT_MESSAGE = "docs: update contributors";
+export const DEFAULT_COMMIT_MESSAGE: string = "docs: update contributors";
 
 const SKIP_CI_TRAILER = "[skip ci]";
 
