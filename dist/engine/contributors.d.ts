@@ -18,8 +18,10 @@ export interface RunResult {
     proposedOutputFile: string;
     warnings: string[];
 }
+export declare const DEFAULT_COMMIT_MESSAGE = "docs: update contributors";
 export interface CommitOptions {
-    message: string;
+    message?: string;
+    skipCi?: boolean;
 }
 export interface CommitResult extends RunResult {
     commitSha: string;
@@ -30,7 +32,8 @@ export interface CheckResult extends RunResult {
 export interface OpenPullRequestOptions {
     branch: string;
     base: string;
-    commitMessage: string;
+    commitMessage?: string;
+    skipCi?: boolean;
     title: string;
     body: string;
     label?: string;

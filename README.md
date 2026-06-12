@@ -72,10 +72,14 @@ const contributors = await Contributors.fromConfigFile(github, {
 
 const result = await contributors.run();
 
-await contributors.commit({
-  message: "docs: update contributors\n\n[skip ci]",
-});
+// Commits to the current branch. Defaults to the message
+// "docs: update contributors" with a "[skip ci]" trailer appended;
+// pass skipCi: false to omit the trailer, or message to override.
+await contributors.commit({});
 
+// Opens a pull request. Defaults to the commit message
+// "docs: update contributors" with NO "[skip ci]" trailer; pass
+// skipCi: true to append it, or commitMessage to override.
 await contributors.openPullRequest({
   branch: "contributors-please/update",
   base: "main",
@@ -85,6 +89,25 @@ await contributors.openPullRequest({
 
 const check = await contributors.check();
 ```
+
+### `[skip ci]` and required status checks
+
+The two entry points default differently on purpose:
+
+- `commit()` appends `[skip ci]` by default. A bookkeeping commit pushed
+  straight to the default branch rarely needs a CI run, and the trailer guards
+  against workflow loops.
+- `openPullRequest()` omits `[skip ci]` by default. The trailer suppresses all
+  `push`/`pull_request` workflow triggers on the PR's head commit, so if the
+  base branch has required status checks backed by those workflows, the checks
+  never report and the PR is permanently stuck at "Expected — waiting for
+  status to be reported". Only set `skipCi: true` here if the base branch has
+  no required status checks.
+
+The same applies to a custom `message`/`commitMessage` that contains
+`[skip ci]` (or any equivalent trailer). For loop protection in pull-request
+flows, prefer `paths-ignore` on the generated files in the calling workflow
+instead of `[skip ci]`.
 
 ## Semver Contract
 

@@ -19706,6 +19706,8 @@ function formatValidationErrors(errors) {
 
 
 const contributors_execFileAsync = (0,external_node_util_namespaceObject.promisify)(external_node_child_process_namespaceObject.execFile);
+const DEFAULT_COMMIT_MESSAGE = "docs: update contributors";
+const SKIP_CI_TRAILER = "[skip ci]";
 class Contributors {
     github;
     config;
@@ -19828,7 +19830,11 @@ class Contributors {
             this.config.stateFile,
             this.config.outputFile,
         ]);
-        await contributors_git(this.options.repoPath, ["commit", "-m", options.message]);
+        await contributors_git(this.options.repoPath, [
+            "commit",
+            "-m",
+            resolveCommitMessage(options.message, options.skipCi ?? true),
+        ]);
         const { stdout } = await contributors_git(this.options.repoPath, ["rev-parse", "HEAD"]);
         return {
             ...result,
@@ -19863,7 +19869,11 @@ class Contributors {
             this.config.stateFile,
             this.config.outputFile,
         ]);
-        await contributors_git(this.options.repoPath, ["commit", "-m", options.commitMessage]);
+        await contributors_git(this.options.repoPath, [
+            "commit",
+            "-m",
+            resolveCommitMessage(options.commitMessage, options.skipCi ?? false),
+        ]);
         const { stdout } = await contributors_git(this.options.repoPath, ["rev-parse", "HEAD"]);
         const commitSha = stdout.trim();
         if (options.push ?? true) {
@@ -19921,6 +19931,13 @@ class Contributors {
         return (this.options.bootstrap &&
             !(await exists((0,external_node_path_namespaceObject.join)(this.options.repoPath, this.config.stateFile))));
     }
+}
+function resolveCommitMessage(message, skipCi) {
+    const base = message ?? DEFAULT_COMMIT_MESSAGE;
+    if (!skipCi || base.includes(SKIP_CI_TRAILER)) {
+        return base;
+    }
+    return `${base}\n\n${SKIP_CI_TRAILER}`;
 }
 function makePatch(file, before, after) {
     if (before === after) {
