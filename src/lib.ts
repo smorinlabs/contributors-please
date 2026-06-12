@@ -1,9 +1,11 @@
-export { Contributors } from "./engine/contributors.js";
+export { Contributors, DEFAULT_COMMIT_MESSAGE } from "./engine/contributors.js";
 export type { ContributorsConfig } from "./engine/config.js";
 export type {
   CheckResult,
+  CommitOptions,
   CommitResult,
   ContributorsOptions,
+  OpenPullRequestOptions,
   OpenPullRequestResult,
   RunResult,
 } from "./engine/contributors.js";

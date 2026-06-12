@@ -48,8 +48,13 @@ export interface RunResult {
   warnings: string[];
 }
 
+export const DEFAULT_COMMIT_MESSAGE: string = "docs: update contributors";
+
+const SKIP_CI_TRAILER = "[skip ci]";
+
 export interface CommitOptions {
-  message: string;
+  message?: string;
+  skipCi?: boolean;
 }
 
 export interface CommitResult extends RunResult {
@@ -63,7 +68,8 @@ export interface CheckResult extends RunResult {
 export interface OpenPullRequestOptions {
   branch: string;
   base: string;
-  commitMessage: string;
+  commitMessage?: string;
+  skipCi?: boolean;
   title: string;
   body: string;
   label?: string;
@@ -249,7 +255,11 @@ export class Contributors {
       this.config.stateFile,
       this.config.outputFile,
     ]);
-    await git(this.options.repoPath, ["commit", "-m", options.message]);
+    await git(this.options.repoPath, [
+      "commit",
+      "-m",
+      resolveCommitMessage(options.message, options.skipCi ?? true),
+    ]);
     const { stdout } = await git(this.options.repoPath, ["rev-parse", "HEAD"]);
     return {
       ...result,
@@ -298,7 +308,11 @@ export class Contributors {
       this.config.stateFile,
       this.config.outputFile,
     ]);
-    await git(this.options.repoPath, ["commit", "-m", options.commitMessage]);
+    await git(this.options.repoPath, [
+      "commit",
+      "-m",
+      resolveCommitMessage(options.commitMessage, options.skipCi ?? false),
+    ]);
     const { stdout } = await git(this.options.repoPath, ["rev-parse", "HEAD"]);
     const commitSha = stdout.trim();
 
@@ -373,6 +387,17 @@ export class Contributors {
       !(await exists(join(this.options.repoPath, this.config.stateFile)))
     );
   }
+}
+
+function resolveCommitMessage(
+  message: string | undefined,
+  skipCi: boolean
+): string {
+  const base = message ?? DEFAULT_COMMIT_MESSAGE;
+  if (!skipCi || base.includes(SKIP_CI_TRAILER)) {
+    return base;
+  }
+  return `${base}\n\n${SKIP_CI_TRAILER}`;
 }
 
 function makePatch(file: string, before: string, after: string): string {

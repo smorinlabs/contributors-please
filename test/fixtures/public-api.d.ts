@@ -1,6 +1,6 @@
-export { Contributors } from "./engine/contributors.js";
+export { Contributors, DEFAULT_COMMIT_MESSAGE } from "./engine/contributors.js";
 export type { ContributorsConfig } from "./engine/config.js";
-export type { CheckResult, CommitResult, ContributorsOptions, OpenPullRequestResult, RunResult, } from "./engine/contributors.js";
+export type { CheckResult, CommitOptions, CommitResult, ContributorsOptions, OpenPullRequestOptions, OpenPullRequestResult, RunResult, } from "./engine/contributors.js";
 export type { ClassificationResult, Classifier, ClassifierContext, ContributorInput, } from "./engine/classifier.js";
 export { PathClassifier } from "./engine/classifiers/path.js";
 export { GitHubClient } from "./engine/github.js";
