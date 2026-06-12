@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file. The format 
 
 Releases are managed by [release-please](https://github.com/googleapis/release-please) from conventional commits on `main`.
 
+## [1.2.0](https://github.com/smorinlabs/contributors-please/compare/v1.1.1...v1.2.0) (2026-06-12)
+
+
+### Features
+
+* mode-aware [skip ci] defaults and explicit skipCi option ([#17](https://github.com/smorinlabs/contributors-please/issues/17)) ([bafb6ed](https://github.com/smorinlabs/contributors-please/commit/bafb6ed3770df748719771ede83dc660766d603f))
+
 ## [1.1.1](https://github.com/smorinlabs/contributors-please/compare/v1.1.0...v1.1.1) (2026-06-08)
 
 
