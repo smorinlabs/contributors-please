@@ -30,6 +30,9 @@ name: release-please
 on:
   push:
     branches: [main]
+  # Manual re-trigger for when the push event is suppressed (e.g. a squash
+  # title containing a literal [skip ci] token skips all push workflows).
+  workflow_dispatch:
 
 permissions: {}
 
