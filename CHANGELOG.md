@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file. The format 
 
 Releases are managed by [release-please](https://github.com/googleapis/release-please) from conventional commits on `main`.
 
+## [1.3.0](https://github.com/smorinlabs/contributors-please/compare/v1.2.0...v1.3.0) (2026-06-14)
+
+
+### Features
+
+* **ci:** notify contributors-please-action on release via repository dispatch ([#21](https://github.com/smorinlabs/contributors-please/issues/21)) ([dc01070](https://github.com/smorinlabs/contributors-please/commit/dc01070d2564a881551e87d0bee4a33fa449f4cc))
+
+
+### CI/CD
+
+* **release:** add workflow_dispatch trigger for manual re-runs ([#19](https://github.com/smorinlabs/contributors-please/issues/19)) ([4dd9ab1](https://github.com/smorinlabs/contributors-please/commit/4dd9ab14531fb0b42c44e7faf6a2e80eac067952))
+
 ## [1.2.0](https://github.com/smorinlabs/contributors-please/compare/v1.1.1...v1.2.0) (2026-06-12)
 
 
