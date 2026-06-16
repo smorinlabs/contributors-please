@@ -147,7 +147,14 @@ jobs:
       - run: npm run build
       - run: npm run check:dist-cli
       - run: npm run check:pack
-      - run: git diff --exit-code -- dist
+      # On release-please PR branches, release-please bumps the version before
+      # the sync-dist job rebuilds the version-bearing bundle, so this gate
+      # race-fails on the initial run (then passes once sync-dist commits).
+      # sync-dist owns dist correctness on those branches; push-to-main CI and
+      # the publish workflow re-verify it. Skip here to drop the benign red.
+      - name: Verify committed dist is in sync
+        if: ${{ !startsWith(github.head_ref, 'release-please--') }}
+        run: git diff --exit-code -- dist
 
   run-result-contract:
     name: CP-LIB-012 run result contract
