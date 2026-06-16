@@ -140,7 +140,7 @@ jobs:
           token: ${{ steps.app-token-client.outputs.token || steps.app-token-app.outputs.token || secrets.RELEASE_PLEASE_APP_TOKEN }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
           cache: 'npm'
