@@ -16,6 +16,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      # Cross-repo checkout of the action repo for the action-output
+      # consistency check below. Here CONTRIBUTORS_PLEASE_ACTION_TOKEN is
+      # read-only and optional — it falls back to github.token for public
+      # checkouts. The SAME secret is reused write-capably by the
+      # "Notify contributors-please-action of the release" step at the end of
+      # this job, where it is required (contents: write, no fallback).
       - uses: actions/checkout@v6
         with:
           repository: smorinlabs/contributors-please-action

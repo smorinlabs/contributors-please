@@ -127,10 +127,17 @@ Tags matching `v*.*.*` run the publish workflow. The package is published by
 npm Trusted Publishing from workflow `publish.yml` in GitHub environment `npm`;
 the workflow uses `id-token: write` and does not require `NPM_TOKEN`.
 
-- `CONTRIBUTORS_PLEASE_ACTION_TOKEN`: optional GitHub token with read access to
-  `smorinlabs/contributors-please-action` for private forks or restricted
-  cross-repo release setups. Public sibling checkouts fall back to
-  `github.token`.
+- `CONTRIBUTORS_PLEASE_ACTION_TOKEN`: GitHub token for cross-repo access to
+  `smorinlabs/contributors-please-action`, used by `publish.yml` for two things:
+  1. **Checking out the action repo** for the action-output consistency check —
+     read-only and optional here, since public checkouts fall back to
+     `github.token`.
+  2. **Sending the `contributors-please-released` repository dispatch** that
+     notifies the action repo of a new release — this **requires** a token with
+     `contents: write` on the action repo and has **no fallback**
+     (`github.token` cannot dispatch cross-repo). If the secret is unset the
+     notification step fails loudly rather than silently; the action repo's
+     daily engine-sync cron is the backstop.
 - `CONTRIBUTORS_PLEASE_ACTION_REF`: optional repository variable selecting the
   action repository ref used for the action-output consistency check. It
   defaults to `main`.
