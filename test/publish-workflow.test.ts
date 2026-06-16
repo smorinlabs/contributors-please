@@ -69,6 +69,35 @@ describe("publish workflow", () => {
     expect(steps[publish]?.env).toBeUndefined();
   });
 
+  it("notifies the action repo loudly after publishing, without swallowing failures", async () => {
+    const workflow = parse(
+      await readFile(".github/workflows/publish.yml", "utf8")
+    ) as {
+      jobs: {
+        publish: {
+          steps: Array<{
+            run?: string;
+            env?: Record<string, string>;
+            ["continue-on-error"]?: boolean;
+          }>;
+        };
+      };
+    };
+
+    const steps = workflow.jobs.publish.steps;
+    const publish = steps.findIndex(step => step.run === "npm publish");
+    const notify = steps.findIndex(step =>
+      step.run?.includes("notify-release.mjs")
+    );
+
+    expect(notify).toBeGreaterThan(publish);
+    // A failed notification must surface, not be masked as a green step.
+    expect(steps[notify]?.["continue-on-error"]).toBeUndefined();
+    expect(steps[notify]?.env).toMatchObject({
+      GH_TOKEN: "${{ secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN }}",
+    });
+  });
+
   it("documents trusted publishing and cross-repo checkout configuration", async () => {
     const readme = await readFile("README.md", "utf8");
 
