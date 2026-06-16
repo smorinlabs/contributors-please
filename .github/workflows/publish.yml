@@ -72,12 +72,14 @@ jobs:
       - run: node scripts/check-action-outputs.mjs contributors-please-action
       - run: git diff --exit-code -- dist
 
-      - name: Require contributors-please-action dispatch token
+      - name: Preflight contributors-please-action dispatch token
         env:
           GH_TOKEN: ${{ steps.action-dispatch-token-client.outputs.token || steps.action-dispatch-token-app.outputs.token || secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN }}
         run: |
           set -euo pipefail
           test -n "${GH_TOKEN}"
+          gh api --method GET repos/smorinlabs/contributors-please-action --jq .full_name
+          echo "Dispatch token preflight API path: REST"
 
       - run: npm publish
 
@@ -91,6 +93,29 @@ jobs:
         run: |
           set -euo pipefail
           test -n "${GH_TOKEN}"
-          gh api --method POST repos/smorinlabs/contributors-please-action/dispatches \
-            -f event_type=contributors-please-released \
-            -f "client_payload[version]=${GITHUB_REF_NAME}"
+          dispatch_status=1
+
+          for attempt in 1 2 3; do
+            if gh api --method POST repos/smorinlabs/contributors-please-action/dispatches \
+              -f event_type=contributors-please-released \
+              -f "client_payload[version]=${GITHUB_REF_NAME}"; then
+              echo "Dispatch API path: REST"
+              exit 0
+            fi
+
+            dispatch_status=$?
+            if [[ "${attempt}" -lt 3 ]]; then
+              sleep_seconds=$((attempt * 10))
+              echo "Release dispatch attempt ${attempt} failed; retrying in ${sleep_seconds}s." >&2
+              sleep "${sleep_seconds}"
+            fi
+          done
+
+          {
+            echo "Failed to notify contributors-please-action after publishing ${GITHUB_REF_NAME}."
+            echo "Manual replay command:"
+            echo "gh api --method POST repos/smorinlabs/contributors-please-action/dispatches \\"
+            echo "  -f event_type=contributors-please-released \\"
+            echo "  -f \"client_payload[version]=${GITHUB_REF_NAME}\""
+          } >&2
+          exit "${dispatch_status}"

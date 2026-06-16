@@ -83,8 +83,8 @@ describe("publish workflow", () => {
     const npmCi = steps.findIndex(step => step.run === "npm ci");
     const distDiff = steps.findIndex(step => step.run === "git diff --exit-code -- dist");
     const publish = steps.findIndex(step => step.run === "npm publish");
-    const requireDispatchToken = steps.findIndex(
-      step => step.name === "Require contributors-please-action dispatch token"
+    const preflightDispatchToken = steps.findIndex(
+      step => step.name === "Preflight contributors-please-action dispatch token"
     );
     const notifyAction = steps.find(
       step => step.name === "Notify contributors-please-action of the release"
@@ -96,15 +96,25 @@ describe("publish workflow", () => {
     expect(npmCi).toBeGreaterThan(versionCheck);
     expect(outputCheck).toBeGreaterThanOrEqual(0);
     expect(distDiff).toBeGreaterThan(outputCheck);
-    expect(requireDispatchToken).toBeGreaterThan(distDiff);
-    expect(requireDispatchToken).toBeLessThan(publish);
-    expect(steps[requireDispatchToken]?.env?.GH_TOKEN).toBe(dispatchTokenExpression);
-    expect(steps[requireDispatchToken]?.run).toContain('test -n "${GH_TOKEN}"');
+    expect(preflightDispatchToken).toBeGreaterThan(distDiff);
+    expect(preflightDispatchToken).toBeLessThan(publish);
+    expect(steps[preflightDispatchToken]?.env?.GH_TOKEN).toBe(dispatchTokenExpression);
+    expect(steps[preflightDispatchToken]?.run).toContain('test -n "${GH_TOKEN}"');
+    expect(steps[preflightDispatchToken]?.run).toContain(
+      "gh api --method GET repos/smorinlabs/contributors-please-action"
+    );
+    expect(steps[preflightDispatchToken]?.run).toContain(
+      "Dispatch token preflight API path: REST"
+    );
     expect(publish).toBeGreaterThan(distDiff);
     expect(steps[publish]?.env).toBeUndefined();
     expect(notifyAction?.["continue-on-error"]).toBeUndefined();
     expect(notifyAction?.env?.GH_TOKEN).toBe(dispatchTokenExpression);
     expect(notifyAction?.run).toContain("repos/smorinlabs/contributors-please-action/dispatches");
+    expect(notifyAction?.run).toContain("for attempt in 1 2 3");
+    expect(notifyAction?.run).toContain("Dispatch API path: REST");
+    expect(notifyAction?.run).toContain("Manual replay command:");
+    expect(notifyAction?.run).toContain("sleep_seconds=$((attempt * 10))");
   });
 
   it("documents trusted publishing and cross-repo checkout configuration", async () => {
