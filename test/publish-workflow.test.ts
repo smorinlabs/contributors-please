@@ -40,7 +40,9 @@ describe("publish workflow", () => {
     expect(actionCheckoutStep?.with).toMatchObject({
       path: "contributors-please-action",
       ref: "${{ vars.CONTRIBUTORS_PLEASE_ACTION_REF || 'main' }}",
-      token: "${{ secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN || github.token }}",
+      // Minted contributors-please App token, falling back to github.token for
+      // public checkouts. No standalone PAT secret.
+      token: "${{ steps.action-token.outputs.token || github.token }}",
     });
     expect(setupNode?.with).toMatchObject({
       "node-version": 24,
@@ -93,9 +95,38 @@ describe("publish workflow", () => {
     expect(notify).toBeGreaterThan(publish);
     // A failed notification must surface, not be masked as a green step.
     expect(steps[notify]?.["continue-on-error"]).toBeUndefined();
+    // Auth is a minted App installation token, not a standalone PAT secret.
     expect(steps[notify]?.env).toMatchObject({
-      GH_TOKEN: "${{ secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN }}",
+      GH_TOKEN: "${{ steps.action-token.outputs.token }}",
     });
+  });
+
+  it("mints a contributors-please App token scoped to the action repo, not a PAT", async () => {
+    const raw = await readFile(".github/workflows/publish.yml", "utf8");
+    const workflow = parse(raw) as {
+      jobs: {
+        publish: {
+          steps: Array<{
+            id?: string;
+            uses?: string;
+            with?: Record<string, string | number>;
+          }>;
+        };
+      };
+    };
+
+    const mint = workflow.jobs.publish.steps.find(
+      step => step.id === "action-token"
+    );
+    expect(mint?.uses).toMatch(/^actions\/create-github-app-token@/);
+    expect(mint?.with).toMatchObject({
+      "app-id": "${{ secrets.CONTRIBUTORS_PLEASE_APP_ID }}",
+      "private-key": "${{ secrets.CONTRIBUTORS_PLEASE_PRIVATE_KEY }}",
+      repositories: "contributors-please-action",
+    });
+    // The standalone PAT secret is no longer referenced (a historical mention
+    // in a comment is fine; a `secrets.` reference is not).
+    expect(raw).not.toContain("secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN");
   });
 
   it("documents trusted publishing and cross-repo checkout configuration", async () => {
@@ -103,7 +134,7 @@ describe("publish workflow", () => {
 
     expect(readme).toContain("Trusted Publishing");
     expect(readme).toContain("environment `npm`");
-    expect(readme).toContain("CONTRIBUTORS_PLEASE_ACTION_TOKEN");
+    expect(readme).toContain("CONTRIBUTORS_PLEASE_APP_ID");
     expect(readme).toContain("CONTRIBUTORS_PLEASE_ACTION_REF");
     expect(readme).toContain("defaults to `main`");
   });

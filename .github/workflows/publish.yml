@@ -13,21 +13,39 @@ jobs:
   publish:
     environment: npm
     runs-on: ubuntu-latest
+    env:
+      # Surfaced so the mint step's `if:` can test it (secrets are not available
+      # directly in `if:`). Empty on forks without the App configured.
+      CP_APP_ID: ${{ secrets.CONTRIBUTORS_PLEASE_APP_ID }}
     steps:
       - uses: actions/checkout@v6
 
-      # Cross-repo checkout of the action repo for the action-output
-      # consistency check below. Here CONTRIBUTORS_PLEASE_ACTION_TOKEN is
-      # read-only and optional — it falls back to github.token for public
-      # checkouts. The SAME secret is reused write-capably by the
-      # "Notify contributors-please-action of the release" step at the end of
-      # this job, where it is required (contents: write, no fallback).
+      # Mint a contributors-please App installation token scoped to the action
+      # repo. The App is installed across the org with `contents: write`, so this
+      # one token both checks out the action repo (read) and sends the release
+      # dispatch to it (write) — replacing the former CONTRIBUTORS_PLEASE_ACTION_TOKEN
+      # PAT. Skipped when the App isn't configured (e.g. forks): the checkout then
+      # falls back to github.token and the notify step fails loudly.
+      - name: Mint contributors-please app token for the action repo
+        id: action-token
+        if: ${{ env.CP_APP_ID != '' }}
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.CONTRIBUTORS_PLEASE_APP_ID }}
+          private-key: ${{ secrets.CONTRIBUTORS_PLEASE_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: contributors-please-action
+          permission-contents: write
+
+      # Cross-repo checkout of the action repo for the action-output consistency
+      # check below. Read-only here; the minted token falls back to github.token
+      # for public checkouts.
       - uses: actions/checkout@v6
         with:
           repository: smorinlabs/contributors-please-action
           path: contributors-please-action
           ref: ${{ vars.CONTRIBUTORS_PLEASE_ACTION_REF || 'main' }}
-          token: ${{ secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN || github.token }}
+          token: ${{ steps.action-token.outputs.token || github.token }}
 
       - uses: actions/setup-node@v6
         with:
@@ -59,11 +77,13 @@ jobs:
       - name: Notify contributors-please-action of the release
         # The action repo's engine-sync workflow reacts to this dispatch and
         # flags stale version references immediately instead of at its daily
-        # cron. The npm publish above already succeeded (and the cron is a
-        # backstop), but a failed notification is no longer silently swallowed:
-        # scripts/notify-release.mjs prints the exact root cause as a `::error::`
-        # annotation and exits non-zero, so this step turns red and is trivially
-        # diagnosable. `continue-on-error` is intentionally NOT set.
+        # cron. Auth is the contributors-please App token minted above (scoped to
+        # the action repo with contents: write). The npm publish already
+        # succeeded (and the cron is a backstop), but a failed notification is no
+        # longer silently swallowed: scripts/notify-release.mjs prints the exact
+        # root cause as a `::error::` annotation and exits non-zero, so this step
+        # turns red and is trivially diagnosable. `continue-on-error` is
+        # intentionally NOT set.
         env:
-          GH_TOKEN: ${{ secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN }}
+          GH_TOKEN: ${{ steps.action-token.outputs.token }}
         run: node scripts/notify-release.mjs
