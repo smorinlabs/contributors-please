@@ -13,15 +13,38 @@ jobs:
   publish:
     environment: npm
     runs-on: ubuntu-latest
+    env:
+      RP_CLIENT_ID: ${{ secrets.RELEASE_PLEASE_CLIENT_ID }}
+      RP_APP_ID: ${{ secrets.RELEASE_PLEASE_APP_ID }}
     steps:
       - uses: actions/checkout@v6
+
+      - name: Mint contributors-please-action dispatch token (client-id)
+        id: action-dispatch-token-client
+        if: ${{ env.RP_CLIENT_ID != '' }}
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.RELEASE_PLEASE_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_PLEASE_PRIVATE_KEY }}
+          owner: smorinlabs
+          repositories: contributors-please-action
+
+      - name: Mint contributors-please-action dispatch token (app-id, deprecated)
+        id: action-dispatch-token-app
+        if: ${{ env.RP_CLIENT_ID == '' && env.RP_APP_ID != '' }}
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.RELEASE_PLEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PLEASE_PRIVATE_KEY }}
+          owner: smorinlabs
+          repositories: contributors-please-action
 
       - uses: actions/checkout@v6
         with:
           repository: smorinlabs/contributors-please-action
           path: contributors-please-action
           ref: ${{ vars.CONTRIBUTORS_PLEASE_ACTION_REF || 'main' }}
-          token: ${{ secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN || github.token }}
+          token: ${{ steps.action-dispatch-token-client.outputs.token || steps.action-dispatch-token-app.outputs.token || secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN || github.token }}
 
       - uses: actions/setup-node@v6
         with:
@@ -48,16 +71,23 @@ jobs:
       - run: npm run test:public-api
       - run: node scripts/check-action-outputs.mjs contributors-please-action
       - run: git diff --exit-code -- dist
+
+      - name: Require contributors-please-action dispatch token
+        env:
+          GH_TOKEN: ${{ steps.action-dispatch-token-client.outputs.token || steps.action-dispatch-token-app.outputs.token || secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "${GH_TOKEN}"
+
       - run: npm publish
 
       - name: Notify contributors-please-action of the release
         # The action repo's engine-sync workflow reacts to this dispatch and
         # flags stale version references immediately instead of at its daily
-        # cron. Non-fatal: the publish already succeeded, and the cron is the
-        # backstop if the dispatch token is missing or expired.
-        continue-on-error: true
+        # cron. Missing credentials fail before npm publish; dispatch failures
+        # after publish stay visible instead of silently falling back to cron.
         env:
-          GH_TOKEN: ${{ secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN }}
+          GH_TOKEN: ${{ steps.action-dispatch-token-client.outputs.token || steps.action-dispatch-token-app.outputs.token || secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN }}
         run: |
           set -euo pipefail
           test -n "${GH_TOKEN}"

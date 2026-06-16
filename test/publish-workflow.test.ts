@@ -13,10 +13,12 @@ describe("publish workflow", () => {
         publish: {
           environment?: string;
           steps: Array<{
+            name?: string;
             uses?: string;
             run?: string;
             with?: Record<string, string | number>;
             env?: Record<string, string>;
+            "continue-on-error"?: boolean;
           }>;
         };
       };
@@ -37,10 +39,31 @@ describe("publish workflow", () => {
         step.with?.repository === "smorinlabs/contributors-please-action"
     );
     const setupNode = steps.find(step => step.with?.["registry-url"]);
+    const actionDispatchClientToken = steps.find(
+      step => step.name === "Mint contributors-please-action dispatch token (client-id)"
+    );
+    const actionDispatchAppToken = steps.find(
+      step => step.name === "Mint contributors-please-action dispatch token (app-id, deprecated)"
+    );
     expect(actionCheckoutStep?.with).toMatchObject({
       path: "contributors-please-action",
       ref: "${{ vars.CONTRIBUTORS_PLEASE_ACTION_REF || 'main' }}",
-      token: "${{ secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN || github.token }}",
+      token:
+        "${{ steps.action-dispatch-token-client.outputs.token || steps.action-dispatch-token-app.outputs.token || secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN || github.token }}",
+    });
+    expect(actionDispatchClientToken?.uses).toBe("actions/create-github-app-token@v3");
+    expect(actionDispatchClientToken?.with).toMatchObject({
+      "client-id": "${{ secrets.RELEASE_PLEASE_CLIENT_ID }}",
+      "private-key": "${{ secrets.RELEASE_PLEASE_PRIVATE_KEY }}",
+      owner: "smorinlabs",
+      repositories: "contributors-please-action",
+    });
+    expect(actionDispatchAppToken?.uses).toBe("actions/create-github-app-token@v3");
+    expect(actionDispatchAppToken?.with).toMatchObject({
+      "app-id": "${{ secrets.RELEASE_PLEASE_APP_ID }}",
+      "private-key": "${{ secrets.RELEASE_PLEASE_PRIVATE_KEY }}",
+      owner: "smorinlabs",
+      repositories: "contributors-please-action",
     });
     expect(setupNode?.with).toMatchObject({
       "node-version": 24,
@@ -60,13 +83,28 @@ describe("publish workflow", () => {
     const npmCi = steps.findIndex(step => step.run === "npm ci");
     const distDiff = steps.findIndex(step => step.run === "git diff --exit-code -- dist");
     const publish = steps.findIndex(step => step.run === "npm publish");
+    const requireDispatchToken = steps.findIndex(
+      step => step.name === "Require contributors-please-action dispatch token"
+    );
+    const notifyAction = steps.find(
+      step => step.name === "Notify contributors-please-action of the release"
+    );
+    const dispatchTokenExpression =
+      "${{ steps.action-dispatch-token-client.outputs.token || steps.action-dispatch-token-app.outputs.token || secrets.CONTRIBUTORS_PLEASE_ACTION_TOKEN }}";
 
     expect(versionCheck).toBeGreaterThanOrEqual(0);
     expect(npmCi).toBeGreaterThan(versionCheck);
     expect(outputCheck).toBeGreaterThanOrEqual(0);
     expect(distDiff).toBeGreaterThan(outputCheck);
+    expect(requireDispatchToken).toBeGreaterThan(distDiff);
+    expect(requireDispatchToken).toBeLessThan(publish);
+    expect(steps[requireDispatchToken]?.env?.GH_TOKEN).toBe(dispatchTokenExpression);
+    expect(steps[requireDispatchToken]?.run).toContain('test -n "${GH_TOKEN}"');
     expect(publish).toBeGreaterThan(distDiff);
     expect(steps[publish]?.env).toBeUndefined();
+    expect(notifyAction?.["continue-on-error"]).toBeUndefined();
+    expect(notifyAction?.env?.GH_TOKEN).toBe(dispatchTokenExpression);
+    expect(notifyAction?.run).toContain("repos/smorinlabs/contributors-please-action/dispatches");
   });
 
   it("documents trusted publishing and cross-repo checkout configuration", async () => {
