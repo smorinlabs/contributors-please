@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file. The format 
 
 Releases are managed by [release-please](https://github.com/googleapis/release-please) from conventional commits on `main`.
 
+## [1.4.3](https://github.com/smorinlabs/contributors-please/compare/v1.4.2...v1.4.3) (2026-06-17)
+
+
+### Documentation
+
+* **readme:** correct release auth to match the App-token implementation ([#25](https://github.com/smorinlabs/contributors-please/issues/25)) ([7568474](https://github.com/smorinlabs/contributors-please/commit/7568474631fcd559d92e789e81ca26cf6bf35756))
+
 ## [1.4.2](https://github.com/smorinlabs/contributors-please/compare/v1.4.1...v1.4.2) (2026-06-17)
 
 

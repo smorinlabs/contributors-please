@@ -1,6 +1,6 @@
 {
   "name": "contributors-please",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Incremental, path-aware contributor recognition engine and CLI",
   "license": "MIT",
   "type": "module",
