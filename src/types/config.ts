@@ -26,7 +26,7 @@ export interface ContributorsPleaseConfig {
   entry_template?: string;
   empty_text?: string;
   /**
-   * Number of rendered entries joined (space-separated) onto each output row. Defaults to 6. Values greater than 1 are only safe for compact, bare-token entries; an entry_template that contains a '|' delimiter, begins with a markdown list/heading marker, or contains a newline emits a warning at columns_per_row > 1 because entries concatenate onto a single row. Set columns_per_row: 1 for such templates (including the default markdown-list template).
+   * Number of rendered entries joined (space-separated) onto each output row. Defaults to 1 (one entry per row), which is correct for the default markdown-list template and the common case. Set a value greater than 1 only for compact, bare-token entries (e.g. an avatar grid); a value greater than 1 with an entry_template that contains a '|' delimiter, begins with a markdown list/heading marker, or contains a newline emits a warning because entries would concatenate onto a single row.
    */
   columns_per_row?: number;
   sort?: "contributions" | "alphabetical" | "first-seen";

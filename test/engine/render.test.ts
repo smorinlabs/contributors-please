@@ -301,15 +301,14 @@ describe("columns-per-row hazard warning", () => {
     expect(result.warnings).toEqual([]);
   });
 
-  it("warns for the default (markdown list) template at the default columns_per_row", () => {
-    // Defaults-only config: default entry_template is "- [{{name}}]..." and
-    // columns_per_row defaults to 6 — a defaults-only config is already hazardous.
+  it("does not warn for a defaults-only config (columns_per_row defaults to 1)", () => {
+    // The default markdown-list template paired with the default columns_per_row: 1
+    // renders one entry per row — the correct, warning-free zero-config result.
     const result = render({
       records: [record, ada],
       config: normalizeConfig({}),
     });
-    expect(result.warnings).toHaveLength(1);
-    expect(result.warnings[0]).toContain("columns_per_row");
+    expect(result.warnings).toEqual([]);
   });
 
   it("warns for a leading-list-marker template at columns_per_row > 1", () => {
