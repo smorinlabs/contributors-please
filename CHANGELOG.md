@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file. The format 
 
 Releases are managed by [release-please](https://github.com/googleapis/release-please) from conventional commits on `main`.
 
+## [1.4.1](https://github.com/smorinlabs/contributors-please/compare/v1.4.0...v1.4.1) (2026-06-17)
+
+
+### Bug Fixes
+
+* **render:** default columns_per_row to 1 ([#28](https://github.com/smorinlabs/contributors-please/issues/28)) ([162a62e](https://github.com/smorinlabs/contributors-please/commit/162a62e8a7842e4bff6872233378b0cb2d3d211e))
+
 ## [1.4.0](https://github.com/smorinlabs/contributors-please/compare/v1.3.1...v1.4.0) (2026-06-17)
 
 
