@@ -2,7 +2,6 @@
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "release-type": "node",
   "pull-request-title-pattern": "chore(release): publish v${version}",
-  "bootstrap-sha": "3971c883bb07b6788b3b7f18a99bbf4d9544bf06",
   "packages": {
     ".": {
       "package-name": "contributors-please",
