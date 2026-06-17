@@ -9,9 +9,11 @@ export interface RenderConfig {
 export interface RenderResult {
     content: string;
     count: number;
+    warnings: string[];
 }
 export declare class RenderError extends Error {
     constructor(message: string);
 }
 export declare function render(options: RenderConfig): RenderResult;
+export declare function columnsPerRowWarnings(config: ContributorsConfig): string[];
 export declare function parseTemplate(template: string, record: Contributor): string;

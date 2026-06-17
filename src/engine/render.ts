@@ -11,6 +11,7 @@ export interface RenderConfig {
 export interface RenderResult {
   content: string;
   count: number;
+  warnings: string[];
 }
 
 export class RenderError extends Error {
@@ -26,7 +27,29 @@ export function render(options: RenderConfig): RenderResult {
   return {
     content,
     count: options.records.length,
+    warnings: columnsPerRowWarnings(options.config),
   };
+}
+
+// columns_per_row > 1 makes renderBlock join multiple rendered entries with a
+// space onto one row. That is only safe for "compact" entries (a bare token such
+// as {{login}} or an avatar). An entry that contains a "|" delimiter, begins with a
+// markdown list/heading marker, or contains a newline cannot be space-joined without
+// corrupting structure — this is the v1.3.1 CONTRIBUTORS.md regression. columns_per_row
+// defaults to 6 and the default entry_template is a markdown list item ("- [..."),
+// so a defaults-only config already trips this; warn rather than silently corrupt.
+const ROW_UNSAFE_ENTRY = /\||\n|^\s*(?:[-*+#]\s|\d+\.\s)/;
+
+export function columnsPerRowWarnings(config: ContributorsConfig): string[] {
+  if (config.columnsPerRow > 1 && ROW_UNSAFE_ENTRY.test(config.entryTemplate)) {
+    return [
+      `columns_per_row is ${config.columnsPerRow} but entry_template cannot be safely ` +
+        'joined onto one row (it contains a "|" delimiter, a leading list/heading ' +
+        "marker, or a newline). Multiple entries are concatenated with spaces, " +
+        "producing malformed output. Set columns_per_row: 1 for such templates.",
+    ];
+  }
+  return [];
 }
 
 export function parseTemplate(template: string, record: Contributor): string {
