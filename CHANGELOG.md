@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file. The format 
 
 Releases are managed by [release-please](https://github.com/googleapis/release-please) from conventional commits on `main`.
 
+## [1.4.2](https://github.com/smorinlabs/contributors-please/compare/v1.4.1...v1.4.2) (2026-06-17)
+
+
+### CI/CD
+
+* **release:** remove ineffective bootstrap-sha ([#31](https://github.com/smorinlabs/contributors-please/issues/31)) ([fe58484](https://github.com/smorinlabs/contributors-please/commit/fe584842a52b2890e73e4983e2c2d08a54ac1937))
+
 ## [1.4.1](https://github.com/smorinlabs/contributors-please/compare/v1.4.0...v1.4.1) (2026-06-17)
 
 
