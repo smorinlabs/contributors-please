@@ -169,7 +169,7 @@ export function normalizeConfig(raw: unknown = {}): ContributorsConfig {
     ),
     entryTemplate: stringValue(root.entry_template, DEFAULT_ENTRY_TEMPLATE),
     emptyText: stringValue(root.empty_text, ""),
-    columnsPerRow: numberValue(root.columns_per_row, 6),
+    columnsPerRow: numberValue(root.columns_per_row, 1),
     sort: normalizeSort(root.sort),
     minContributions: numberValue(root.min_contributions, 1),
     ignore: stringList(root.ignore),
