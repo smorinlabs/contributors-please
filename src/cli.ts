@@ -66,6 +66,9 @@ export async function runCli(argv: readonly string[], io: CliIo = {}): Promise<n
           : undefined,
       });
       await writeFile(join(cwd, config.outputFile), result.content);
+      for (const warning of result.warnings) {
+        stderr(`warning: ${warning}`);
+      }
       stdout(
         `contributors-please rendered ${result.count} contributor${
           result.count === 1 ? "" : "s"
@@ -118,6 +121,9 @@ export async function runCli(argv: readonly string[], io: CliIo = {}): Promise<n
         }
       }
       const rendered = await renderRecords(cwd, normalized, reviewedRecords);
+      for (const warning of rendered.warnings) {
+        stderr(`warning: ${warning}`);
+      }
       await writeFile(join(cwd, normalized.stateFile), serializeState(reviewedRecords));
       await writeFile(join(cwd, normalized.outputFile), rendered.content);
       stdout(
