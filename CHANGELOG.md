@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file. The format 
 
 Releases are managed by [release-please](https://github.com/googleapis/release-please) from conventional commits on `main`.
 
+## [1.4.4](https://github.com/smorinlabs/contributors-please/compare/v1.4.3...v1.4.4) (2026-09-01)
+
+
+### CI/CD
+
+* add difftree PR comment workflow ([86fbc68](https://github.com/smorinlabs/contributors-please/commit/86fbc68fc3a3e4a4d3040f9e4d123bcbacbed350))
+* add difftree PR comment workflow ([8b4a866](https://github.com/smorinlabs/contributors-please/commit/8b4a8666759d7ce312d426cd5408cf80a34251d7))
+* sync difftree PR comment workflow to canonical template ([c9b7b07](https://github.com/smorinlabs/contributors-please/commit/c9b7b0754b0654630305af6c39142fcfdf126b51))
+* sync difftree PR comment workflow to canonical template ([78598c6](https://github.com/smorinlabs/contributors-please/commit/78598c63fd270dc6009710e9bc5edb5b748f0102))
+* trigger difftree re-run ([b1bd79f](https://github.com/smorinlabs/contributors-please/commit/b1bd79fb5cfc7fd35e44405342270f672bed7298))
+
 ## [1.4.3](https://github.com/smorinlabs/contributors-please/compare/v1.4.2...v1.4.3) (2026-06-17)
 
 
